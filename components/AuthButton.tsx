@@ -2,12 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
 
-interface AuthButtonProps {
-  className?: string
-}
-
-export function AuthButton({ className }: AuthButtonProps) {
+export function AuthButton() {
   const [user, setUser] = useState<string | null>(null)
   const router = useRouter()
 
@@ -27,22 +24,23 @@ export function AuthButton({ className }: AuthButtonProps) {
   const handleLogout = async () => {
     await fetch('/api/auth', { method: 'DELETE' })
     router.push('/login')
+    router.refresh()
   }
 
   if (!user) {
     return (
-      <a className={`button ghost small ${className ?? ''}`} href="/login">
-        Sign in
-      </a>
+      <Button variant="outline" size="sm" asChild>
+        <a href="/login">Sign in</a>
+      </Button>
     )
   }
 
   return (
-    <div className={`auth-user ${className ?? ''}`}>
-      <span className="auth-email">{user}</span>
-      <button type="button" className="button ghost small" onClick={() => void handleLogout()}>
+    <div className="flex items-center gap-3">
+      <span className="hidden text-sm text-muted-foreground sm:inline">{user}</span>
+      <Button variant="outline" size="sm" onClick={() => void handleLogout()}>
         Sign out
-      </button>
+      </Button>
     </div>
   )
 }
