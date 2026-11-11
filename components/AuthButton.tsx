@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { LogIn, LogOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 export function AuthButton() {
@@ -29,18 +30,23 @@ export function AuthButton() {
 
   if (!user) {
     return (
-      <Button variant="outline" size="sm" asChild>
-        <a href="/login">Sign in</a>
+      <Button variant="outline" size="icon" asChild title="Sign in" aria-label="Sign in">
+        <a href="/login">
+          <LogIn className="h-4 w-4" />
+        </a>
       </Button>
     )
   }
 
   return (
-    <div className="flex items-center gap-3">
-      <span className="hidden text-sm text-muted-foreground sm:inline">{user}</span>
-      <Button variant="outline" size="sm" onClick={() => void handleLogout()}>
-        Sign out
-      </Button>
-    </div>
+    <Button
+      variant="outline"
+      size="icon"
+      onClick={() => void handleLogout()}
+      title={`Sign out (${user})`}
+      aria-label={`Sign out (${user})`}
+    >
+      <LogOut className="h-4 w-4" />
+    </Button>
   )
 }

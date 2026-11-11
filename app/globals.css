@@ -2,28 +2,28 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Shadcn theme variables */
+/* Shadcn theme variables — dark SaaS theme */
 :root {
-  --background: 0 0% 100%;
-  --foreground: 240 10% 3.9%;
-  --card: 0 0% 100%;
-  --card-foreground: 240 10% 3.9%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 240 10% 3.9%;
-  --primary: 240 5.9% 10%;
-  --primary-foreground: 0 0% 98%;
-  --secondary: 240 4.8% 95.9%;
-  --secondary-foreground: 240 5.9% 10%;
-  --muted: 240 4.8% 95.9%;
-  --muted-foreground: 240 3.8% 46.1%;
-  --accent: 240 4.8% 95.9%;
-  --accent-foreground: 240 5.9% 10%;
-  --destructive: 0 84.2% 60.2%;
+  --background: 240 10% 3.9%;
+  --foreground: 0 0% 98%;
+  --card: 240 10% 5.5%;
+  --card-foreground: 0 0% 98%;
+  --popover: 240 10% 5.5%;
+  --popover-foreground: 0 0% 98%;
+  --primary: 248 89% 74%;
+  --primary-foreground: 240 10% 3.9%;
+  --secondary: 240 3.7% 15.9%;
+  --secondary-foreground: 0 0% 98%;
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 64.9%;
+  --accent: 240 3.7% 15.9%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 62.8% 30.6%;
   --destructive-foreground: 0 0% 98%;
-  --border: 240 5.9% 90%;
-  --input: 240 5.9% 90%;
-  --ring: 240 5.9% 10%;
-  --radius: 0.5rem;
+  --border: 240 3.7% 15.9%;
+  --input: 240 3.7% 15.9%;
+  --ring: 248 89% 74%;
+  --radius: 0.625rem;
 }
 
 .dark {
@@ -90,15 +90,16 @@
   --muted-dim: #6b7280;
   --inverse-text: #0b0c10;
 
-  --accent: #2563eb;
-  --accent-glow: rgba(37, 99, 235, 0.35);
-  --accent-soft: rgba(37, 99, 235, 0.14);
-  --accent-2: #7c3aed;
-  --success: #16a34a;
-  --success-soft: rgba(22, 163, 74, 0.14);
-  --danger: #dc2626;
-  --danger-soft: rgba(220, 38, 38, 0.12);
-  --warning: #d97706;
+  --accent: #6366f1;
+  --accent-glow: rgba(99, 102, 241, 0.4);
+  --accent-soft: rgba(99, 102, 241, 0.14);
+  --accent-2: #8b5cf6;
+  --accent-3: #a78bfa;
+  --success: #10b981;
+  --success-soft: rgba(16, 185, 129, 0.14);
+  --danger: #ef4444;
+  --danger-soft: rgba(239, 68, 68, 0.12);
+  --warning: #f59e0b;
 
   --radius: 14px;
   --radius-sm: 10px;
@@ -129,7 +130,7 @@ body {
   margin: 0;
   min-height: 100vh;
   background:
-    radial-gradient(1100px 620px at 10% -10%, rgba(37, 99, 235, 0.14), transparent 55%),
+    radial-gradient(1100px 620px at 10% -10%, rgba(99, 102, 241, 0.14), transparent 55%),
     radial-gradient(800px 500px at 90% 10%, rgba(124, 58, 237, 0.10), transparent 55%),
     radial-gradient(700px 460px at 50% 110%, rgba(22, 163, 74, 0.10), transparent 55%),
     var(--bg);
@@ -151,7 +152,7 @@ body::before {
 }
 
 ::selection {
-  background: rgba(47, 123, 255, 0.4);
+  background: rgba(99, 102, 241, 0.4);
   color: #fff;
 }
 
@@ -233,7 +234,7 @@ a {
   gap: 3px;
   padding: 9px 11px;
   border-radius: 12px;
-  background: linear-gradient(140deg, rgba(47, 123, 255, 0.25), rgba(139, 92, 246, 0.18));
+  background: linear-gradient(140deg, rgba(99, 102, 241, 0.25), rgba(139, 92, 246, 0.18));
   border: 1px solid var(--border-strong);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
@@ -242,7 +243,7 @@ a {
   width: 4px;
   height: 14px;
   border-radius: 2px;
-  background: linear-gradient(180deg, #7dd3fc, #2563eb);
+  background: linear-gradient(180deg, #7dd3fc, #6366f1);
 }
 
 .brand-mark i:nth-child(2) {
@@ -302,13 +303,13 @@ a {
 
 .button.primary {
   border-color: transparent;
-  background: linear-gradient(135deg, #3b82f6, #6366f1 55%, #8b5cf6);
+  background: linear-gradient(135deg, #6366f1, #6366f1 55%, #8b5cf6);
   color: #fff;
-  box-shadow: 0 10px 26px rgba(59, 130, 246, 0.34);
+  box-shadow: 0 10px 26px rgba(99, 102, 241, 0.34);
 }
 
 .button.primary:hover:not(:disabled) {
-  box-shadow: 0 14px 32px rgba(59, 130, 246, 0.46);
+  box-shadow: 0 14px 32px rgba(99, 102, 241, 0.46);
   background: linear-gradient(135deg, #4c8dff, #7a7cf8 55%, #9d6bff);
 }
 
@@ -343,8 +344,8 @@ a {
 }
 
 .export-button {
-  border-color: rgba(47, 123, 255, 0.4);
-  background: linear-gradient(135deg, rgba(47, 123, 255, 0.19), rgba(139, 92, 246, 0.16));
+  border-color: rgba(99, 102, 241, 0.4);
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.19), rgba(139, 92, 246, 0.16));
   color: #dbeafe;
 }
 
@@ -422,7 +423,7 @@ a {
   padding: 14px 18px;
   border-left: 3px solid var(--accent);
   border-radius: 10px;
-  background: rgba(37, 99, 235, 0.08);
+  background: rgba(99, 102, 241, 0.08);
 }
 
 .hero blockquote p {
@@ -477,8 +478,8 @@ a {
 }
 
 .stat.accent {
-  border-color: rgba(47, 123, 255, 0.34);
-  background: linear-gradient(140deg, rgba(47, 123, 255, 0.16), rgba(139, 92, 246, 0.08));
+  border-color: rgba(99, 102, 241, 0.34);
+  background: linear-gradient(140deg, rgba(99, 102, 241, 0.16), rgba(139, 92, 246, 0.08));
 }
 
 .stat-value {
@@ -814,7 +815,7 @@ a {
 }
 
 .mode-toggle button.active {
-  background: rgba(47, 123, 255, 0.24);
+  background: rgba(99, 102, 241, 0.24);
   color: #dbeafe;
 }
 
@@ -847,8 +848,8 @@ a {
 
 .create input:focus {
   outline: none;
-  border-color: rgba(47, 123, 255, 0.6);
-  box-shadow: 0 0 0 3px rgba(47, 123, 255, 0.16);
+  border-color: rgba(99, 102, 241, 0.6);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.16);
 }
 
 .create .button {
@@ -936,7 +937,7 @@ a {
   width: 100%;
   padding: 6px 10px;
   border-radius: 8px;
-  border: 1px solid rgba(47, 123, 255, 0.55);
+  border: 1px solid rgba(99, 102, 241, 0.55);
   background: rgba(7, 8, 13, 0.8);
   color: var(--text);
   font: inherit;
@@ -946,7 +947,7 @@ a {
 
 .rename input:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(47, 123, 255, 0.18);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18);
 }
 
 .badge {
@@ -1018,7 +1019,7 @@ a {
 .progress > div {
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  background: linear-gradient(90deg, #6366f1, #8b5cf6);
   transition: width 0.3s linear;
 }
 
@@ -1062,9 +1063,9 @@ a {
 
 .actions button.primary {
   border-color: transparent;
-  background: linear-gradient(135deg, #3b82f6, #6366f1);
+  background: linear-gradient(135deg, #6366f1, #6366f1);
   color: #fff;
-  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.28);
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.28);
 }
 
 .actions button.primary:hover:not(:disabled) {
@@ -1146,8 +1147,8 @@ a {
 }
 
 .day.active {
-  border-color: rgba(47, 123, 255, 0.55);
-  background: linear-gradient(120deg, rgba(47, 123, 255, 0.2), rgba(139, 92, 246, 0.12));
+  border-color: rgba(99, 102, 241, 0.55);
+  background: linear-gradient(120deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.12));
   box-shadow: inset 0 0 0 1px rgba(147, 197, 253, 0.16);
 }
 

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { Download } from 'lucide-react'
 import { formatDayLabel, localTimeZone, type Session } from '@/lib/types'
 
 interface ExportPdfButtonProps {
@@ -17,7 +18,6 @@ export function ExportPdfButton({ sessions, selectedDay }: ExportPdfButtonProps)
     setBusy(true)
     setMessage(null)
     try {
-      // Loaded on click so jsPDF never lands in the initial bundle.
       const { downloadSessionHistoryPdf } = await import('@/lib/pdf')
       await downloadSessionHistoryPdf({
         sessions,
@@ -33,29 +33,22 @@ export function ExportPdfButton({ sessions, selectedDay }: ExportPdfButtonProps)
   }
 
   const scope = selectedDay ? formatDayLabel(selectedDay) : 'all days'
+  const title = message ?? `Export daily history (${scope})`
 
   return (
-    <div className="export">
-      <button
-        type="button"
-        className="button export-button"
-        onClick={() => void handleExport()}
-        disabled={busy || sessions.length === 0}
-      >
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true">
-          <path
-            d="M12 3v11m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-        {busy ? 'Building PDF…' : 'Export PDF'}
-      </button>
-      <span className="export-hint" role="status">
-        {message ?? `Daily history for ${scope}`}
-      </span>
-    </div>
+    <button
+      type="button"
+      className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border bg-background/60 text-foreground transition-colors hover:bg-accent hover:text-accent-foreground disabled:opacity-50"
+      onClick={() => void handleExport()}
+      disabled={busy || sessions.length === 0}
+      title={title}
+      aria-label={title}
+    >
+      {busy ? (
+        <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+      ) : (
+        <Download className="h-4 w-4" />
+      )}
+    </button>
   )
 }

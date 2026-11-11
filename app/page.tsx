@@ -1,13 +1,12 @@
 'use client'
 
-import { useEffect, useState, type FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
 import { ConsistencyGraph } from '@/components/ConsistencyGraph'
 import { ExportPdfButton } from '@/components/ExportPdfButton'
 import { SessionCard } from '@/components/SessionCard'
-import { QUOTES, quoteOfTheDay } from '@/lib/quotes'
+import { AuthButton } from '@/components/AuthButton'
 import { formatDayLabel, formatTime, getElapsed } from '@/lib/types'
 import { useSessions } from '@/lib/useSessions'
-import { AuthButton } from '@/components/AuthButton'
 
 function App() {
   const {
@@ -30,27 +29,6 @@ function App() {
   const [name, setName] = useState('')
   const [minutes, setMinutes] = useState('')
   const [mode, setMode] = useState<'stopwatch' | 'countdown'>('stopwatch')
-  const [mounted, setMounted] = useState(false)
-  const [quoteIndex, setQuoteIndex] = useState(0)
-
-  // Day bucketing depends on the browser time zone, so it waits for hydration.
-  useEffect(() => setMounted(true), [])
-
-  // Pick today's quote after hydration so server and client agree.
-  useEffect(() => {
-    const today = quoteOfTheDay()
-    setQuoteIndex(Math.max(0, QUOTES.indexOf(today)))
-  }, [])
-
-  // Rotate quotes slowly.
-  useEffect(() => {
-    const id = setInterval(() => {
-      setQuoteIndex((index) => (index + 1) % QUOTES.length)
-    }, 15_000)
-    return () => clearInterval(id)
-  }, [])
-
-  const quote = QUOTES[quoteIndex]
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault()
@@ -81,7 +59,6 @@ function App() {
           </span>
           <div>
             <strong>Timer</strong>
-            <span>Focus dashboard</span>
           </div>
         </div>
         <div className="topbar-right">
@@ -90,35 +67,13 @@ function App() {
         </div>
       </div>
 
-      <section className="hero" aria-labelledby="hero-title">
-        <div className="hero-eyebrow">A little motivation</div>
-        <h1 id="hero-title" className="gradient-text">
-          Stay consistent. Build momentum.
-        </h1>
-        <blockquote className="quote" key={quoteIndex}>
-          <p>&ldquo;{quote.text}&rdquo;</p>
-          <footer>- {quote.author}</footer>
-        </blockquote>
-        <button type="button" className="button ghost" onClick={() => {
-          setQuoteIndex((i) => (i + 1 + Math.floor(Math.random() * (QUOTES.length - 1))) % QUOTES.length)
-        }}>New quote</button>
-      </section>
-
       {error && (
         <div className="error" role="alert">
           <span>{error}</span>
         </div>
       )}
 
-      <section className="stats" aria-label="Overview">
-        <Stat label="Sessions shown" value={String(sessions.length)} accent />
-        <Stat label="Running now" value={String(runningCount)} />
-        <Stat label="Completed" value={String(completedCount)} />
-        <Stat label="Tracked here" value={formatTime(totalTracked)} />
-      </section>
-
-      <ConsistencyGraph days={days} selectedDay={selectedDay} onSelectDay={setSelectedDay} />
-
+      {/* Daily log + session timers at the top */}
       <div className="workspace">
         <section className="panel sessions-panel" aria-labelledby="sessions-title">
           <div className="panel-head">
@@ -269,6 +224,17 @@ function App() {
           </div>
         </aside>
       </div>
+
+      {/* Stats */}
+      <section className="stats" aria-label="Overview">
+        <Stat label="Sessions shown" value={String(sessions.length)} accent />
+        <Stat label="Running now" value={String(runningCount)} />
+        <Stat label="Completed" value={String(completedCount)} />
+        <Stat label="Tracked here" value={formatTime(totalTracked)} />
+      </section>
+
+      {/* Consistency chart */}
+      <ConsistencyGraph days={days} selectedDay={selectedDay} onSelectDay={setSelectedDay} />
 
       <footer className="footer">
         <p>
