@@ -1,11 +1,17 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { ensureSchema, pool } from '@/lib/db'
+import { getCurrentUser } from '@/lib/auth'
 import { isValidDate, isValidTimeZone, toSession, type SessionRow } from '@/lib/sessions'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
+  const user = await getCurrentUser()
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 })
+  }
+
   const { searchParams } = request.nextUrl
   const date = searchParams.get('date')
   const tz = searchParams.get('tz') ?? 'UTC'
@@ -22,11 +28,17 @@ export async function GET(request: NextRequest) {
     const result = date
       ? await pool.query<SessionRow>(
           `SELECT * FROM timer_sessions
-           WHERE (created_at AT TIME ZONE $1)::date = $2::date
+           WHERE user_email = $1
+             AND (created_at AT TIME ZONE $2)::date = $3::date
            ORDER BY created_at DESC`,
-          [tz, date],
+          [user, tz, date],
         )
-      : await pool.query<SessionRow>(`SELECT * FROM timer_sessions ORDER BY created_at DESC`)
+      : await pool.query<SessionRow>(
+          `SELECT * FROM timer_sessions
+           WHERE user_email = $1
+           ORDER BY created_at DESC`,
+          [user],
+        )
 
     return NextResponse.json({ sessions: result.rows.map(toSession) })
   } catch (error) {
@@ -36,6 +48,11 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const user = await getCurrentUser()
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 })
+  }
+
   let payload: unknown
   try {
     payload = await request.json()
@@ -62,10 +79,10 @@ export async function POST(request: NextRequest) {
   try {
     await ensureSchema()
     const result = await pool.query<SessionRow>(
-      `INSERT INTO timer_sessions (name, duration_ms)
-       VALUES ($1, $2)
+      `INSERT INTO timer_sessions (user_email, name, duration_ms)
+       VALUES ($1, $2, $3)
        RETURNING *`,
-      [name.trim(), durationMs ? Math.round(durationMs) : null],
+      [user, name.trim(), durationMs ? Math.round(durationMs) : null],
     )
     return NextResponse.json({ session: toSession(result.rows[0]) }, { status: 201 })
   } catch (error) {
@@ -75,9 +92,13 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE() {
+  const user = await getCurrentUser()
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 })
+  }
   try {
     await ensureSchema()
-    await pool.query(`DELETE FROM timer_sessions`)
+    await pool.query(`DELETE FROM timer_sessions WHERE user_email = $1`, [user])
     return NextResponse.json({ ok: true })
   } catch (error) {
     console.error('DELETE /api/sessions failed', error)

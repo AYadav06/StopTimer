@@ -7,6 +7,7 @@ import { SessionCard } from '@/components/SessionCard'
 import { QUOTES, quoteOfTheDay } from '@/lib/quotes'
 import { formatDayLabel, formatTime, getElapsed } from '@/lib/types'
 import { useSessions } from '@/lib/useSessions'
+import { AuthButton } from '@/components/AuthButton'
 
 function App() {
   const {
@@ -83,22 +84,10 @@ function App() {
             <span>Focus dashboard</span>
           </div>
         </div>
-        <ExportPdfButton sessions={sessions} selectedDay={selectedDay} />
-      </div>
-
-      <div className="topbar">
-        <div className="brand">
-          <span className="brand-mark" aria-hidden="true">
-            <i />
-            <i />
-            <i />
-          </span>
-          <div>
-            <strong>Timer</strong>
-            <span>Focus dashboard</span>
-          </div>
+        <div className="topbar-right">
+          <ExportPdfButton sessions={sessions} selectedDay={selectedDay} />
+          <AuthButton />
         </div>
-        <ExportPdfButton sessions={sessions} selectedDay={selectedDay} />
       </div>
 
       <section className="hero" aria-labelledby="hero-title">

@@ -27,6 +27,10 @@ async function request<T>(url: string, init?: RequestInit): Promise<T> {
     cache: 'no-store',
   })
   const data = (await response.json().catch(() => null)) as { error?: string } | null
+  if (response.status === 401) {
+    window.location.href = '/login'
+    throw new Error('Unauthenticated')
+  }
   if (!response.ok) {
     throw new Error(data?.error ?? `Request failed with status ${response.status}.`)
   }

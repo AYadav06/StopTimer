@@ -41,6 +41,7 @@ let schemaReady: Promise<void> | null = null
 const SCHEMA_SQL = `
   CREATE TABLE IF NOT EXISTS timer_sessions (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_email text NOT NULL DEFAULT '',
     name text NOT NULL,
     duration_ms bigint,
     elapsed_ms bigint NOT NULL DEFAULT 0,
@@ -51,8 +52,24 @@ const SCHEMA_SQL = `
     updated_at timestamptz NOT NULL DEFAULT now()
   );
 
+  ALTER TABLE timer_sessions
+    ADD COLUMN IF NOT EXISTS user_email text NOT NULL DEFAULT '';
+
+  CREATE INDEX IF NOT EXISTS timer_sessions_user_email_idx
+    ON timer_sessions (user_email);
+
   CREATE INDEX IF NOT EXISTS timer_sessions_created_at_idx
     ON timer_sessions (created_at DESC);
+
+  CREATE TABLE IF NOT EXISTS timer_users (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    email text NOT NULL UNIQUE,
+    password_hash text NOT NULL,
+    created_at timestamptz NOT NULL DEFAULT now()
+  );
+
+  CREATE INDEX IF NOT EXISTS timer_users_email_idx
+    ON timer_users (email);
 `
 
 /**
@@ -71,4 +88,40 @@ export function ensureSchema(): Promise<void> {
     )
   }
   return schemaReady
+}
+
+import { compare, hash } from 'bcrypt'
+
+/** Verify a plaintext password against the stored bcrypt hash. */
+export async function verifyPassword(
+  email: string,
+  password: string,
+): Promise<boolean> {
+  const result = await pool.query<{ password_hash: string }>(
+    'SELECT password_hash FROM timer_users WHERE email = $1',
+    [email.toLowerCase()],
+  )
+  if (result.rowCount === 0) return false
+  return await compare(password, result.rows[0].password_hash)
+}
+
+/** Create a user with a bcrypt-hashed password. Idempotent by email. */
+export async function createUser(
+  email: string,
+  password: string,
+): Promise<{ created: boolean }> {
+  const normalized = email.toLowerCase()
+  const existing = await pool.query<{ id: string }>(
+    'SELECT id FROM timer_users WHERE email = $1',
+    [normalized],
+  )
+  if ((existing.rowCount ?? 0) > 0) return { created: false }
+
+  const passwordHash = await hash(password, 10)
+
+  await pool.query(
+    'INSERT INTO timer_users (email, password_hash) VALUES ($1, $2)',
+    [normalized, passwordHash],
+  )
+  return { created: true }
 }

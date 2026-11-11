@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { ensureSchema, pool } from '@/lib/db'
+import { getCurrentUser } from '@/lib/auth'
 import { toSession, type SessionRow } from '@/lib/sessions'
 
 export const runtime = 'nodejs'
@@ -15,6 +16,10 @@ interface RouteContext {
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 export async function PATCH(request: NextRequest, context: RouteContext) {
+  const user = await getCurrentUser()
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 })
+  }
   const { id } = await context.params
   if (!UUID_RE.test(id)) {
     return NextResponse.json({ error: 'Invalid session id.' }, { status: 400 })
@@ -48,6 +53,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     const result = await pool.query<SessionRow>(SQL_BY_ACTION[action as Action], [
       id,
       ...(action === 'rename' ? [name as string] : []),
+      user,
     ])
 
     if (result.rowCount === 0) {
@@ -61,6 +67,10 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 }
 
 export async function DELETE(_request: NextRequest, context: RouteContext) {
+  const user = await getCurrentUser()
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 })
+  }
   const { id } = await context.params
   if (!UUID_RE.test(id)) {
     return NextResponse.json({ error: 'Invalid session id.' }, { status: 400 })
@@ -68,7 +78,7 @@ export async function DELETE(_request: NextRequest, context: RouteContext) {
 
   try {
     await ensureSchema()
-    const result = await pool.query(`DELETE FROM timer_sessions WHERE id = $1`, [id])
+    const result = await pool.query(`DELETE FROM timer_sessions WHERE id = $1 AND user_email = $2`, [id, user])
     if (result.rowCount === 0) {
       return NextResponse.json({ error: 'Session not found.' }, { status: 404 })
     }
@@ -87,7 +97,7 @@ const SQL_BY_ACTION: Record<Action, string> = {
     SET status = 'running',
         started_at = COALESCE(started_at, now()),
         updated_at = now()
-    WHERE id = $1 AND status IN ('idle', 'paused', 'stopped', 'running')
+    WHERE id = $1 AND user_email = $2 AND status IN ('idle', 'paused', 'stopped', 'running')
     RETURNING *`,
   pause: `
     UPDATE timer_sessions
@@ -102,7 +112,7 @@ const SQL_BY_ACTION: Record<Action, string> = {
         started_at = NULL,
         status = 'paused',
         updated_at = now()
-    WHERE id = $1 AND status IN ('running', 'paused')
+    WHERE id = $1 AND user_email = $2 AND status IN ('running', 'paused')
     RETURNING *`,
   stop: `
     UPDATE timer_sessions
@@ -117,7 +127,7 @@ const SQL_BY_ACTION: Record<Action, string> = {
         started_at = NULL,
         status = 'stopped',
         updated_at = now()
-    WHERE id = $1 AND status IN ('running', 'paused', 'stopped')
+    WHERE id = $1 AND user_email = $2 AND status IN ('running', 'paused', 'stopped')
     RETURNING *`,
   reset: `
     UPDATE timer_sessions
@@ -125,7 +135,7 @@ const SQL_BY_ACTION: Record<Action, string> = {
         started_at = NULL,
         status = 'idle',
         updated_at = now()
-    WHERE id = $1
+    WHERE id = $1 AND user_email = $2
     RETURNING *`,
   complete: `
     UPDATE timer_sessions
@@ -133,13 +143,13 @@ const SQL_BY_ACTION: Record<Action, string> = {
         started_at = NULL,
         status = 'completed',
         updated_at = now()
-    WHERE id = $1 AND status IN ('running', 'completed')
+    WHERE id = $1 AND user_email = $2 AND status IN ('running', 'completed')
     RETURNING *`,
   rename: `
     UPDATE timer_sessions
     SET name = $2,
         updated_at = now()
-    WHERE id = $1
+    WHERE id = $1 AND user_email = $3
     RETURNING *`,
 }
 
