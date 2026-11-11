@@ -1,3 +1,4 @@
+import { attachDatabasePool } from '@vercel/functions'
 import { Pool } from 'pg'
 import './network.ts'
 
@@ -12,16 +13,21 @@ function createPool(): Pool {
   const connectionString = process.env.DATABASE_URL
   if (!connectionString) {
     throw new Error(
-      'DATABASE_URL is not set. Run `neon deploy` (or `neon env pull`) to pull the database credentials into .env.local.',
+      'DATABASE_URL is not set. Run `neon deploy` (or `neon env pull`) to pull the database credentials into .env.local, and set DATABASE_URL in the Vercel project settings.',
     )
   }
 
-  return new Pool({
+  const pool = new Pool({
     connectionString,
     max: 5,
     idleTimeoutMillis: 30_000,
     connectionTimeoutMillis: 10_000,
   })
+
+  // On Vercel this keeps the Fluid compute instance alive long enough to close
+  // idle connections; it is a no-op on other platforms.
+  attachDatabasePool(pool)
+  return pool
 }
 
 export const pool = globalForDb.timerPool ?? createPool()

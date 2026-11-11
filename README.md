@@ -32,6 +32,25 @@ npm run dev
 `.env.local` is written by `neon deploy` and contains `DATABASE_URL` (pooled) and
 `DATABASE_URL_UNPOOLED` (direct). Both are ignored by git.
 
+## Deploy to Vercel
+
+The app uses the Node.js runtime, `pg`, and Vercel's Fluid compute connection
+handling (`attachDatabasePool` in `lib/db.ts`).
+
+```bash
+npm i -g vercel
+vercel login
+vercel link            # create/link the Vercel project
+vercel env add DATABASE_URL production        # paste the pooled URL from .env.local
+vercel env add DATABASE_URL_UNPOOLED production  # optional, for migrations
+vercel deploy --prod
+```
+
+Alternatively, connect the Neon/Vercel integration from the Vercel dashboard and
+it will inject `DATABASE_URL` automatically. The schema is created on the first
+request (`ensureSchema`), or run `npm run db:init` locally against the production
+branch beforehand.
+
 ## Scripts
 
 | Script | Description |
