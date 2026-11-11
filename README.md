@@ -1,32 +1,58 @@
-# React + TypeScript + Vite
+# Timer Dashboard (Next.js + Neon Postgres)
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A timer dashboard with countdown and stopwatch sessions. Sessions are stored in
+Postgres on [Neon](https://neon.tech) instead of `localStorage`, so they survive
+browser resets and are shared across devices.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Create stopwatch or countdown sessions, start/pause/stop/reset them.
+- Rename any session inline.
+- Day filter: totals for every day that has sessions, plus a per-day list of
+  session names and times.
+- Persistence in Postgres through server-side route handlers (`pg` pool over
+  Neon's pooled connection string).
 
-## React Compiler
+## Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Next.js 16 App Router, React 19, TypeScript
+- `pg` (node-postgres) with a shared pool, Node.js runtime for route handlers
+- Neon Postgres
 
-## Expanding the Oxlint configuration
+## Setup
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+neon login
+neon deploy       # provisions services from neon.ts and writes .env.local
+npm run db:init   # creates the timer_sessions table (idempotent)
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+`.env.local` is written by `neon deploy` and contains `DATABASE_URL` (pooled) and
+`DATABASE_URL_UNPOOLED` (direct). Both are ignored by git.
+
+## Scripts
+
+| Script | Description |
+| --- | --- |
+| `npm run dev` | Start the Next.js dev server |
+| `npm run build` | Production build |
+| `npm start` | Serve the production build |
+| `npm run lint` | Run oxlint |
+| `npm run db:init` | Create the `timer_sessions` table if missing |
+
+## API
+
+| Route | Description |
+| --- | --- |
+| `GET /api/sessions?date=YYYY-MM-DD&tz=IANA_TZ` | List sessions, optionally filtered to one local day |
+| `POST /api/sessions` | Create a session (`{ name, durationMs }`) |
+| `PATCH /api/sessions/:id` | `{ action: start \| pause \| stop \| reset \| complete \| rename, name? }` |
+| `DELETE /api/sessions/:id` | Delete one session |
+| `DELETE /api/sessions` | Clear every session |
+| `GET /api/days?tz=IANA_TZ` | Per-day totals in the caller's time zone |
+
+`created_at` is stamped by the database; elapsed time for running sessions is
+computed from `now() - started_at`, so the server stays the source of truth even
+with several tabs open.

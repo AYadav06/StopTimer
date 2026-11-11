@@ -1,3 +1,42 @@
+:root {
+  --bg: #f6f7f9;
+  --card: #ffffff;
+  --text: #1a1d23;
+  --muted: #6b7280;
+  --border: #e3e5e8;
+  --accent: #4f46e5;
+  --success: #16a34a;
+  --danger: #dc2626;
+
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--bg);
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1115;
+    --card: #181b21;
+    --text: #e6e7ea;
+    --muted: #9097a3;
+    --border: #2a2e36;
+    --accent: #6366f1;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
 .dashboard {
   max-width: 960px;
   margin: 0 auto;
@@ -12,6 +51,19 @@ header h1 {
 .subtitle {
   margin: 0.25rem 0 1.5rem;
   color: var(--muted);
+}
+
+.error {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  color: var(--danger);
+  background: var(--card);
+  border: 1px solid var(--danger);
+  border-radius: 10px;
 }
 
 .stats {
@@ -41,6 +93,70 @@ header h1 {
   font-size: 0.85rem;
 }
 
+.days {
+  margin-bottom: 1.5rem;
+}
+
+.days-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+
+.days-head h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.days-hint {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.day-list {
+  display: flex;
+  gap: 0.6rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+}
+
+.day {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.1rem;
+  flex: 0 0 auto;
+  min-width: 140px;
+  padding: 0.6rem 0.8rem;
+  text-align: left;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.day.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent) inset;
+}
+
+.day-label {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.day-total {
+  font-size: 1.15rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.day-count {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
 .create {
   display: flex;
   flex-wrap: wrap;
@@ -48,7 +164,8 @@ header h1 {
   margin-bottom: 1.5rem;
 }
 
-.create input {
+.create input,
+.rename input {
   flex: 1 1 200px;
   padding: 0.65rem 0.8rem;
   font: inherit;
@@ -58,7 +175,8 @@ header h1 {
   border-radius: 8px;
 }
 
-.create input:focus {
+.create input:focus,
+.rename input:focus {
   outline: 2px solid var(--accent);
   outline-offset: -1px;
 }
@@ -136,6 +254,17 @@ button.danger:hover:not(:disabled) {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.rename {
+  flex: 1;
+  display: flex;
+}
+
+.rename input {
+  flex: 1;
+  padding: 0.35rem 0.5rem;
+  font-size: 1rem;
 }
 
 .badge {

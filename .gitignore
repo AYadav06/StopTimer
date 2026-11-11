@@ -8,9 +8,20 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
+.next
+out
 dist
 dist-ssr
 *.local
+.env
+.env.*
+!.env.example
+
+# Vercel
+.vercel
+
+# Neon CLI context (contains project/branch ids)
+.neon
 
 # Editor directories and files
 .vscode/*
